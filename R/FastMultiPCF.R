@@ -1,12 +1,12 @@
 #' Segment multiple data together using the partial least squares regression
 #' as presented in XXX
 #'
-#' @param data dataframe of binned copy number data in the format (samples,
+#' @param data data.frame of binned copy number data in the format (samples,
 #'  values) with two additional columns. The first representing the chromosome,
 #'  the second the position on the chromosome
-#' @param gamma value representing a threshhold for the segmentation
-#' @return A dataframe representing segmentation data, containing columns for 
-#' the chromosome ,segmentation start ,segmentation end ,number of bins in that 
+#' @param gamma value representing a threshold for the segmentation
+#' @return A data.frame representing segmentation data, containing columns for 
+#' the chromosome, segmentation start, segmentation end, number of bins in that 
 #' segment, mean value for that segment, each segmentation value for each sample
 FastMultiPCF <- function(data, gamma=5, frac1=0.15, frac2=0.15){
   
@@ -192,7 +192,7 @@ calcScoresSegs <- function(dist, sum, gamma) {
   Dist <- matrix(0, nSamples, N)
   eachCost <- matrix(0, nSamples, N)
   
-  # initialise matrices
+  # initialize matrices
   Sum[, 1] <- sum[, 1]
   Dist[, 1] <- dist[1]
   Aver[, 1] <- sum[, 1] / dist[1]
