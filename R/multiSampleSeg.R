@@ -8,7 +8,7 @@
 #' @param showPlot boolean that determines, if the plots will be displayed
 #'
 #' @return Nothing. Will print the figures to the default plotting terminal.
-multiSampleSeg <- function(mSetsAnno, thresh, array_type, colour.amplification, colour.loss, detail.regions, showPlot){
+multiSampleSeg <- function(mSetsAnno, thresh, array_type, colour.amplification, colour.loss, detail.regions, showPlot, gamma){
   target_mset_loaded <- mSetsAnno$target_mset_loaded
   control_mset_loaded <- mSetsAnno$control_mset_loaded
   anno_targets <- mSetsAnno$anno_targets
@@ -35,7 +35,7 @@ multiSampleSeg <- function(mSetsAnno, thresh, array_type, colour.amplification, 
   
   #################### Segmentation #################################
   start <- Sys.time()
-  seg_mpcf <- FastMultiPCF(target_ratios, gamma = 5)
+  seg_mpcf <- FastMultiPCF(target_ratios, gamma = gamma)
   end <- Sys.time()
   execution_time_multi <- as.numeric(as.POSIXct(start,origin = "1970-01-01")) - as.numeric(as.POSIXct(end,origin = "1970-01-01"))
   print(paste("Runtime multi:", execution_time_multi))
