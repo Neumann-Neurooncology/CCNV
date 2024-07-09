@@ -147,7 +147,8 @@ segment.Plot <-
                            colour.amplification,
                            colour.loss,
                            detail.regions,
-                           showPlot)
+                           showPlot,
+                             gamma)
           } else{
             multiSeg <- multiSampleSeg2(mSetsAnno,
                             thresh,
@@ -155,7 +156,8 @@ segment.Plot <-
                             colour.amplification,
                             colour.loss,
                             detail.regions,
-                            showPlot)
+                            showPlot,
+                            gamma)
           }
           return(multiSeg)
         } else if (segmentationMode == "all") {
@@ -174,7 +176,8 @@ segment.Plot <-
                              colour.amplification,
                              colour.loss,
                              detail.regions,
-                             showPlot)
+                             showPlot,
+                             gamma)
               
             } else{
               
@@ -191,7 +194,8 @@ segment.Plot <-
                              colour.amplification,
                              colour.loss,
                              detail.regions,
-                             showPlot)
+                             showPlot,
+                             gamma)
               
             }
           
