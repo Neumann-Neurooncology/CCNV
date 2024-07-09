@@ -10,9 +10,36 @@
 #' @return Nothing. Will print the figures to the default plotting terminal.
 multiSampleSeg2 <- function(mSetsAnno, thresh, array_type, colour.amplification, colour.loss, detail.regions, showPlot){
   
-  #load and bin each sample in conumee
+ #load and bin each sample in conumee
   x <- conumee2.0::CNV.bin(conumee2.0::CNV.fit(query = mSetsAnno$target_mset_loaded, ref = mSetsAnno$control_mset_loaded, mSetsAnno$anno_targets))
-  target_ratios <- cbind(x@anno@bins@ranges@NAMES, x@anno@bins@ranges@start, as.data.frame(x@bin$ratio))
+
+  genes <- mSetsAnno$anno_targets@probes@elementMetadata@listData[["genes"]]
+  gene <- sample(genes, 1)
+
+  binInfo <- mSetsAnno$anno_targets@bins@elementMetadata@listData[["genes"]]
+
+  bins <- binInfo[grep(gene, binInfo)]
+
+  toChange <- binInfo[which(binInfo %in% bins)]
+
+  x1 <- as.data.frame(x@bin$ratio)
+  x1_changed <- x1
+
+
+  fractions <- c(0.2, 0.4, 0.6, 0.8, 1)
+  frac <- sample(fractions, 1)
+
+  amplifications <- c(0.5, 1, 1.5, 2)
+  strength <- sample(amplifications, 1)
+
+  numColsToChange <- round(ncol(x1) * frac)
+
+  colsToChange <- sample(ncol(x1), numColsToChange)
+  x1_changed[names(toChange), colsToChange] <- x1[names(toChange), colsToChange] + strength
+
+
+  target_ratios <- cbind(x@anno@bins@ranges@NAMES, x@anno@bins@ranges@start, x1_changed)
+  
   names(target_ratios) <- c("Chrom", "Median.bp", names(mSetsAnno$target_mset_loaded@intensity))
   
   target_ratios$Chrom <- gsub("chr","",target_ratios$Chrom)
