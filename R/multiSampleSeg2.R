@@ -8,7 +8,7 @@
 #' @param showPlot boolean that determines, if the plots will be displayed
 #'
 #' @return Nothing. Will print the figures to the default plotting terminal.
-multiSampleSeg2 <- function(mSetsAnno, thresh, array_type, colour.amplification, colour.loss, detail.regions, showPlot){
+multiSampleSeg2 <- function(mSetsAnno, thresh, array_type, colour.amplification, colour.loss, detail.regions, showPlot, gamma){
   
   #load and bin each sample in conumee
   x <- conumee2.0::CNV.bin(conumee2.0::CNV.fit(query = mSetsAnno$target_mset_loaded, ref = mSetsAnno$control_mset_loaded, mSetsAnno$anno_targets))
@@ -23,7 +23,7 @@ multiSampleSeg2 <- function(mSetsAnno, thresh, array_type, colour.amplification,
   
   #################### Segmentation #################################
   start <- Sys.time()
-  seg_mpcf <- FastMultiPCF(target_ratios, gamma = 5)
+  seg_mpcf <- FastMultiPCF(target_ratios, gamma = gamma)
   end <- Sys.time()
   execution_time_multi <- as.numeric(as.POSIXct(start,origin = "1970-01-01")) - as.numeric(as.POSIXct(end,origin = "1970-01-01"))
   print(paste("Runtime multi:", execution_time_multi))
