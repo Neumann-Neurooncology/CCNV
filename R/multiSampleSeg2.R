@@ -15,7 +15,6 @@ multiSampleSeg2 <- function(mSetsAnno, thresh, array_type, colour.amplification,
 
   genes <- mSetsAnno$anno_targets@probes@elementMetadata@listData[["genes"]]
   gene <- sample(genes, 1)
-  print(gene)
 
   binInfo <- mSetsAnno$anno_targets@bins@elementMetadata@listData[["genes"]]
 
@@ -29,11 +28,9 @@ multiSampleSeg2 <- function(mSetsAnno, thresh, array_type, colour.amplification,
 
   fractions <- c(0.2, 0.4, 0.6, 0.8, 1)
   frac <- sample(fractions, 1)
-  print(frac)
 
   amplifications <- c(0.5, 1, 1.5, 2)
   strength <- sample(amplifications, 1)
-  print(strength)
 
   numColsToChange <- round(ncol(x1) * frac)
 
@@ -68,6 +65,6 @@ multiSampleSeg2 <- function(mSetsAnno, thresh, array_type, colour.amplification,
     suppressWarnings(print(cumFreq))
   }
   
-  return(seg_mpcf)
+  return(list(seg_mpcf, gene, frac, strength))
   
 }
