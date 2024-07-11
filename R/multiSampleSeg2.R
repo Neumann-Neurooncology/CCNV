@@ -14,6 +14,7 @@ multiSampleSeg2 <- function(mSetsAnno, thresh, array_type, colour.amplification,
   x <- conumee2.0::CNV.bin(conumee2.0::CNV.fit(query = mSetsAnno$target_mset_loaded, ref = mSetsAnno$control_mset_loaded, mSetsAnno$anno_targets))
 
   genes <- mSetsAnno$anno_targets@probes@elementMetadata@listData[["genes"]]
+  genes <- na.omit(genes)
   gene <- sample(genes, 1)
 
   binInfo <- mSetsAnno$anno_targets@bins@elementMetadata@listData[["genes"]]
