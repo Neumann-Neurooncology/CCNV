@@ -27,7 +27,6 @@ multiSampleSeg2 <- function(mSetsAnno, thresh, array_type, colour.amplification,
 
   for (colIndex in toChange2) {
     colRange <- (colIndex - 3):(colIndex + 3)
-    colRange <- colRange[colRange > 0 & colRange <= ncol(binInfo)]
     allColsToChange <- unique(c(allColsToChange, colRange))
   }
 
