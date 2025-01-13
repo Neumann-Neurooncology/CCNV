@@ -10,7 +10,8 @@ cumFreq(
   target_ratios,
   colour.amplification,
   colour.loss,
-  thresh
+  thresh,
+  array_type
 )
 }
 \arguments{

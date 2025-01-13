@@ -11,7 +11,8 @@ CCNV(
   ArrayType,
   colour.amplification,
   colour.loss,
-  detail.regions
+  detail.regions,
+  array_type
 )
 }
 \arguments{

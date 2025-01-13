@@ -14,7 +14,8 @@ segment.Plot(
   colour.loss,
   detail.regions,
   conumee.version,
-  controls
+  controls,
+  showPlot
 )
 }
 \arguments{
@@ -32,7 +33,9 @@ segment.Plot(
 
 \item{conumee.version}{The conumee version to use.}
 
-\item{controls}{control data to normalize against, if the publicly available should not be used or ArrayType = EPICv2}
+\item{controls}{control data to normalize against, if the publicly available should not be used or ArrayType = EPICv2 or mouse}
+
+\item{showPlot}{boolean that determines, if the plots will be displayed}
 
 \item{dataFiles}{A dataframe with columns ArrayType and Basename}
 }

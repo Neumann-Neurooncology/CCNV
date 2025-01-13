@@ -4,7 +4,13 @@
 \alias{overlayPlot}
 \title{Generates the single sample segmentation aberration frequency plot}
 \usage{
-overlayPlot(mSetsAnno, segmentation_data, colour.amplification, colour.loss)
+overlayPlot(
+  mSetsAnno,
+  segmentation_data,
+  colour.amplification,
+  colour.loss,
+  array_type
+)
 }
 \arguments{
 \item{mSetsAnno}{A list of the RGSet of the target data, the control data and the annotation data}

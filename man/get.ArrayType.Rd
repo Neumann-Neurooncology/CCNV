@@ -7,10 +7,10 @@
 get.ArrayType(dataFiles)
 }
 \arguments{
-\item{dataFiles}{Dataframe with a column labelled "ArrayType" containing the arraytype (450K/EPIC/EPIC2) for each sample.}
+\item{dataFiles}{Dataframe with a column labelled "ArrayType" containing the arraytype (450k/EPIC/EPIC2) for each sample.}
 }
 \value{
-A string with either "450K" (only 450K samples), "EPIC" (only EPIC samples), "combined" (both 450K and EPIC samples) and EPIC2 (only EPIC2)
+A string with either "450k" (only 450k samples), "EPIC" (only EPIC samples), "combined" (both 450k and EPIC samples) and EPIC2 (only EPIC2)
 }
 \description{
 Determines the array type of the user input dataframe

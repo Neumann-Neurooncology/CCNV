@@ -9,7 +9,8 @@ singleFrequencyPlot(
   segmentation_data,
   colour.amplification,
   colour.loss,
-  thresh
+  thresh,
+  array_type
 )
 }
 \arguments{

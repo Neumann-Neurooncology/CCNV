@@ -10,7 +10,9 @@ multiSampleSeg2(
   array_type,
   colour.amplification,
   colour.loss,
-  detail.regions
+  detail.regions,
+  showPlot,
+  gamma
 )
 }
 \arguments{
@@ -18,11 +20,15 @@ multiSampleSeg2(
 
 \item{thresh}{A positive float (>=0) indicating the threshold for an abberation.}
 
+\item{array_type}{Type of methylation array}
+
 \item{colour.amplification}{Colour for amplification}
 
 \item{colour.loss}{Colour for loss}
 
 \item{detail.regions}{Either NULL or a vector of gene names.}
+
+\item{showPlot}{boolean that determines, if the plots will be displayed}
 }
 \value{
 Nothing. Will print the figures to the default plotting terminal.
