@@ -1,0 +1,26 @@
+#apptainer --verbose build --fix-perms --sandbox ubuntu_sb docker://ubuntu
+#apptainer shell --cleanenv --containall --fakeroot --writable-tmpfs --writable ubuntu_sb/
+#apptainer build ubuntu_ccnv.sif template.def 2>&1 | tee build_output.log
+
+BootStrap: docker
+From: ubuntu:24.04
+
+%post
+   # initial config
+   apt-get -y update
+   apt-get -y install wget build-essential libssl-dev libfontconfig1-dev libcurl4-openssl-dev libxml2-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
+   # install R
+   wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+   echo "deb https://cloud.r-project.org/bin/linux/ubuntu noble-cran40/" >> /etc/apt/sources.list
+   apt-get -y update   
+   DEBIAN_FRONTEND=noninteractive apt-get -y install r-base r-base-dev
+   # install R packages
+   Rscript -e 'install.packages(c("BiocManager", "ggplot2", "foreach", "ggrepel", "tidyr", "dplyr", "plotly", "devtools"))'
+   Rscript -e 'BiocManager::install(c("GenVisR", "minfi", "minfiData", "minfiDataEPIC", "IlluminaHumanMethylation450kanno.ilmn12.hg19", "IlluminaHumanMethylationEPICanno.ilm10b4.hg19"))'
+   Rscript -e 'devtools::install_github("hovestadtlab/conumee2", subdir = "conumee2")'
+   # Rscript -e 'devtools::install_github("AntoniaGocke/CCNV")' # for the comparisons
+   Rscript -e 'devtools::install_github("AntoniaGocke/CCNV@Simulation")' # for the simulations
+
+%labels
+   Author Yannis Schumann
+   Email schumany@hsu-hh.de
