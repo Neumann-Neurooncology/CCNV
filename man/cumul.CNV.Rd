@@ -33,11 +33,11 @@ cumul.CNV(
 \item{detail.regions}{Either NULL or a vector of gene names.
 #conumee version new name}
 
-\item{conumee.version}{The version of conumee to use (either 1 or 2). 1 is incompatible with mouse or EPICv2 arrays. NULL will set the version heuristically to 1 for 450K, EPIC and to 2 for Mouse and EPICv2}
+\item{conumee.version}{The version of conumee to use (either 1 or 2). 1 is incompatible with mouse or EPICv2 arrays. NULL will set the version heuristically to 1 for 450k, EPIC and to 2 for Mouse and EPICv2}
 
 \item{output}{determines the type of output. Can be either plot, data or all}
 
-\item{controls}{control samples either as MSet or NULL. If NULL, publicly available can be used (except for mouse or EPICv2)}
+\item{controls}{control samples as a dataframe with columns ArrayType and Basename or NULL. If NULL, publicly available can be used (except for mouse or EPICv2 or mouse data)}
 }
 \value{
 If the output is set to data or all, te segmentation values will be returned, else nothing will be returned and the figures are printed to the default plotting terminal.

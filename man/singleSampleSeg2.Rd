@@ -4,7 +4,14 @@
 \alias{singleSampleSeg2}
 \title{Segments the data using the conumee 2.0 package and visualizes DNA methylation data and generative cumulative plots}
 \usage{
-singleSampleSeg2(mSetsAnno, thresh, colour.amplification, colour.loss)
+singleSampleSeg2(
+  mSetsAnno,
+  thresh,
+  colour.amplification,
+  colour.loss,
+  array_type,
+  showPlot
+)
 }
 \arguments{
 \item{mSetsAnno}{A list of the RGSet of the target data, the control data and the annotation data}
@@ -14,6 +21,10 @@ singleSampleSeg2(mSetsAnno, thresh, colour.amplification, colour.loss)
 \item{colour.amplification}{Colour for amplification}
 
 \item{colour.loss}{Colour for loss}
+
+\item{array_type}{Type of methylation array used}
+
+\item{showPlot}{boolean that determines, if the plots will be displayed}
 
 \item{detail.regions}{Either NULL or a vector of gene names.}
 }

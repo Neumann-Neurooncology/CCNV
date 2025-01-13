@@ -118,7 +118,7 @@ segment.Plot <-
         require(conumee)
         mSetsAnno <-  sampleBinContr(target_rgset, array_type, controls)
       } else {
-        require(conumee2.0)
+        require(conumee2)
         mSetsAnno <-  sampleBinContr2(target_rgset, array_type, controls)
       }
       require(ggplot2)
@@ -294,8 +294,8 @@ cumul.CNV <-
         if(!is.null(controls)) {
           controlsRG <- read.RGSet(controls, array_type)
           if (array_type %in% c("EPICv2", "mouse")) {
-            require(conumee2.0)
-            control_mset <- conumee2.0::CNV.import(controlsRG$array_type, controlsRG$directory, controlsRG$sample_sheet)
+            require(conumee2)
+            control_mset <- conumee2::CNV.import(controlsRG$array_type, controlsRG$directory, controlsRG$sample_sheet)
           }
           else {
             control_mset <- minfi::preprocessIllumina(controlsRG)
