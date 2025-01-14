@@ -13,28 +13,33 @@ sampleBinContr2 <- function(target_rgset, ArrayType, controls) {
   
   if (ArrayType == "mouse") {
     anno_targets <- conumee2::CNV.create_anno(array_type = ArrayType, chrXY = TRUE)
-    target_mset <- conumee2::CNV.import(target_rgset$array_type, target_rgset$directory, target_rgset$sample_sheet)
-  
-  }
-  else if (ArrayType == "EPICv2") {
+    target_mset_loaded <- conumee2::CNV.load(do.call(cbind, lapply(target_rgset$sdfs, totalIntensities)))
+  }  else if (ArrayType == "EPICv2") {
     anno_targets <- conumee2::CNV.create_anno(array_type = ArrayType)
-    target_mset <- conumee2::CNV.import(target_rgset$array_type, target_rgset$directory, target_rgset$sample_sheet)
-    
+    target_mset_loaded <- conumee2::CNV.load(do.call(cbind, lapply(target_rgset$sdfs, totalIntensities)))
+  } else if (ArrayType == "overlap.1") {
+    anno_targets <- conumee2::CNV.create_anno(array_type = c("450k", "EPIC"))
+    target_mset_loaded <- conumee2::CNV.load(do.call(cbind, lapply(target_rgset$sdfs, totalIntensities)))
+  } else if (ArrayType == "overlap.2") {
+    anno_targets <- conumee2::CNV.create_anno(array_type = c("EPIC", "EPICv2"))
+    target_mset_loaded <- conumee2::CNV.load(do.call(cbind, lapply(target_rgset$sdfs, totalIntensities)))
+  } else if (ArrayType == "overlap.3") {
+    anno_targets <- conumee2::CNV.create_anno(array_type = c("450k", "EPIC", "EPICv2"))
+    target_mset_loaded <- conumee2::CNV.load(do.call(cbind, lapply(target_rgset$sdfs, totalIntensities)))
   }
     else {
-      # Illumina normalisation
       anno_targets <- conumee2::CNV.create_anno(array_type = ArrayType)
+      # Illumina normalisation
       target_mset <- minfi::preprocessIllumina(target_rgset)
+      target_mset_loaded <- conumee2::CNV.load(target_mset) 
     }
-  target_mset_loaded <- conumee2::CNV.load(target_mset) 
-  
   
   if (is.null(controls))  {
     #load controls based on ArrayType
-    if (ArrayType == "overlap" || ArrayType == "450k") {
+    if (ArrayType == "overlap.1" || ArrayType == "450k" || ArrayType == "overlap.3") {
       control_mset <- minfiData::MsetEx
     }
-    if (ArrayType == "EPIC") {
+    if (ArrayType == "EPIC" || ArrayType == "overlap.2") {
       control_mset <- minfiDataEPIC::MsetEPIC
     }
   } else {

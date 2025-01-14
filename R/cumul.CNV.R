@@ -1,13 +1,21 @@
 #'Determines the array type of the user input dataframe
 #'
 #'@param dataFiles Dataframe with a column labelled "ArrayType" containing the arraytype (450k/EPIC/EPIC2) for each sample.
-#'@return A string with either "450k" (only 450k samples), "EPIC" (only EPIC samples), "combined" (both 450k and EPIC samples) and EPIC2 (only EPIC2)
+#'@return A string with either "450k" (only 450k samples), "EPIC" (only EPIC samples), "combined" (both 450k and EPIC samples),  EPICv2 (only EPICv2)
+# overlap.1 (450k and EPIC), overlap.2  (EPIC and EPICv2) and overlap.3 (450k, EPIC, EPICv2).
+
 get.ArrayType <- function(dataFiles) {
     ArrayType <- NULL
     types = unique(dataFiles$ArrayType)
     if ((all(c("EPIC", "450k") %in% types)) &
         (length(types) == 2)) {
-        ArrayType <- "combined"
+        ArrayType <- "overlap.1"
+    } else if ((all(c("EPIC", "EPICv2") %in% types)) &
+               (length(types) == 2)) {
+        ArrayType <- "overlap.2"
+    } else if ((all(c("EPIC", "EPICv2", "450k") %in% types)) &
+              (length(types) == 3)) {
+        ArrayType <- "overlap.3"
     } else if (("450k" %in% types) & (length(types) == 1)) {
         ArrayType <- "450k"
     } else if (("EPIC" %in% types) & (length(types) == 1)) {
@@ -26,9 +34,9 @@ get.ArrayType <- function(dataFiles) {
 #'
 #' @return The conumee version (either 1 or 2)
 get.ConumeeVersion <- function(ArrayType) {
-    v <- 1
-    if (ArrayType %in% c("EPIC2", "EPICv2", "mouse")) {
-        v <- 2
+    v <- 2
+    if (ArrayType %in% c("450k", "EPIC")) {
+        v <- 1
     }
     return(v)
 }
@@ -39,28 +47,9 @@ get.ConumeeVersion <- function(ArrayType) {
 #'
 #' @return A list of the RGSet of the target data, the control data and the annotation data
 read.RGSet <- function(dataFiles, ArrayType) {
-    stopifnot(
-        "Only 450k, EPIC, EPICv2, mouse and combined are permitted as ArrayType at the moment" =
-            (ArrayType %in% c("450k", "EPIC", "combined", "EPICv2", "mouse"))
-    )
     types = unique(dataFiles$ArrayType)
     
     #read data transform to RGChannelSet
-    if (ArrayType == "combined") {
-        # separate file names
-        data_EPIC <-
-            dataFiles[which(dataFiles$ArrayType == "EPIC"),]
-        data_450k <-
-            dataFiles[which(dataFiles$ArrayType == "450k"),]
-        # separately prepare 450k and 850k and then combine them
-        rgset_EPIC <-
-            minfi::read.metharray.exp(targets = data_EPIC, force = TRUE)
-        rgset_450k <-
-            minfi::read.metharray.exp(targets = data_450k, force = TRUE)
-        # combine into array with 450k cpg sites
-        target_rgset <-
-            minfi::combineArrays(rgset_EPIC, rgset_450k, outType = "IlluminaHumanMethylation450k")
-    }
     if (ArrayType == "450k") {
         rgset_450k <-
             minfi::read.metharray.exp(targets = dataFiles, force = TRUE)
@@ -72,19 +61,123 @@ read.RGSet <- function(dataFiles, ArrayType) {
         target_rgset <- rgset_EPIC
         
     }
-    if (ArrayType %in% c("EPICv2", "mouse")) {
-      targetDirectory <- dirname(dataFiles$Basename[1])
-      sample_sheet <- data.frame(matrix(0, 3 , length(dataFiles$Basename)))
-      names(sample_sheet) <- c("Sample_Name", "Sentrix_ID", "Sentrix_Position")
-      for (i in 1:length(dataFiles$Basename)) {
-        sample_sheet$Sample_Name[i] <- basename(dataFiles$Basename[i])
-        Sentrix_parts <- strsplit(sample_sheet$Sample_Name[i], "_")[[1]]
-        sample_sheet$Sentrix_ID[i] <- Sentrix_parts[1]
-        sample_sheet$Sentrix_Position[i] <- Sentrix_parts[2]
-      }
-      target_rgset <- list("array_type" = ArrayType, "directory" = targetDirectory, "sample_sheet" = sample_sheet)
+    if (ArrayType %in% c("EPICv2", "mouse", "overlap.1", "overlap.2", "overlap.3")) {
+      require(sesame)
+      require(sesameData)
       
-    }
+      if ( ArrayType == "overlap.1") {
+        #separate into 450k and EPIC samples
+        data_EPIC <-
+          dataFiles[which(dataFiles$ArrayType == "EPIC"),]
+        data_450k <-
+          dataFiles[which(dataFiles$ArrayType == "450k"),]
+        #read with sesame
+        if (length(data_450k$Basename) == 1) {
+          samplename <- basename(data_450k$Basename)
+          sdf.450 <- list(name = sesame::openSesame(data_450k$Basename, prep = "QCDPB", func = NULL))
+          names(sdf.450) <- samplename
+        } else {
+        sdf.450 <-
+          sesame::openSesame(data_450k$Basename, prep = "QCDPB", func = NULL)
+        }
+        
+        if (length(data_EPIC$Basename) == 1) {
+          samplename <- basename(data_EPIC$Basename)
+          sdf.EPIC <- list(name = sesame::openSesame(data_EPIC$Basename, prep = "QCDPB", func = NULL))
+          names(sdf.EPIC) <- samplename
+        } else {
+          sdf.EPIC <-
+            sesame::openSesame(data_EPIC$Basename, prep = "QCDPB", func = NULL)
+        }
+        
+       #liftOver to smaller platform
+        
+        sdf.lift.EPIC.450 <- sesame::mLiftOver(sdf.EPIC, "HM450", impute = FALSE)
+        
+        sdf.all <- c(sdf.450, sdf.lift.EPIC.450)
+      } else if (ArrayType == "overlap.2") {
+        #separate into 450k and EPIC samples
+        data_EPIC <-
+          dataFiles[which(dataFiles$ArrayType == "EPIC"),]
+        data_EPICv2 <-
+          dataFiles[which(dataFiles$ArrayType == "EPICv2"),]
+        #read with sesame
+        if (length(data_EPIC$Basename) == 1) {
+          samplename <- basename(data_EPIC$Basename)
+          sdf.EPIC <- list(name = sesame::openSesame(data_EPIC$Basename, prep = "QCDPB", func = NULL))
+          names(sdf.EPIC) <- samplename
+        } else {
+          sdf.EPIC <-
+            sesame::openSesame(sdf.EPIC$Basename, prep = "QCDPB", func = NULL)
+        }
+        if (length(data_EPICv2$Basename) == 1) {
+          samplename <- basename(data_EPICv2$Basename)
+          sdf.EPICv2 <- list(name = sesame::openSesame(data_EPICv2$Basename, prep = "QCDPB", func = NULL))
+          names(sdf.EPICv2) <- samplename
+        } else {
+          sdf.EPICv2 <-
+            sesame::openSesame(data_EPICv2$Basename, prep = "QCDPB", func = NULL)
+        }
+        
+        #liftOver to smaller platform
+        
+        sdf.lift.EPICv2.EPIC <- sesame::mLiftOver(sdf.EPICv2, "EPIC", impute = FALSE)
+        
+        sdf.all <- c(sdf.EPIC, sdf.lift.EPICv2.EPIC)
+      } else if (ArrayType == "overlap.3") {
+        #separate into 450k and EPIC samples
+        data_450k <-
+          dataFiles[which(dataFiles$ArrayType == "450k"),]
+        data_EPIC <-
+          dataFiles[which(dataFiles$ArrayType == "EPIC"),]
+        data_EPICv2 <-
+          dataFiles[which(dataFiles$ArrayType == "EPICv2"),]
+        #read with sesame
+        if (length(data_450k$Basename) == 1) {
+          samplename <- basename(data_450k$Basename)
+          sdf.450 <- list(name = sesame::openSesame(data_450k$Basename, prep = "QCDPB", func = NULL))
+          names(sdf.450) <- samplename
+        } else {
+          sdf.450 <-
+            sesame::openSesame(data_450k$Basename, prep = "QCDPB", func = NULL)
+        }
+        if (length(data_EPIC$Basename) == 1) {
+          samplename <- basename(data_EPIC$Basename)
+          sdf.EPIC <- list(name = sesame::openSesame(data_EPIC$Basename, prep = "QCDPB", func = NULL))
+          names(sdf.EPIC) <- samplename
+        } else {
+          sdf.EPIC <-
+            sesame::openSesame(data_EPIC$Basename, prep = "QCDPB", func = NULL)
+        }
+        if (length(data_EPICv2$Basename) == 1) {
+          samplename <- basename(data_EPICv2$Basename)
+          sdf.EPICv2 <- list(name = sesame::openSesame(data_EPICv2$Basename, prep = "QCDPB", func = NULL))
+          names(sdf.EPICv2) <- samplename
+        } else {
+          sdf.EPICv2 <-
+            sesame::openSesame(data_EPICv2$Basename, prep = "QCDPB", func = NULL)
+        }
+        #liftOver to smaller platform
+        sdf.lift.EPIC.450 <- sesame::mLiftOver(sdf.EPIC, "HM450", impute = FALSE)
+        sdf.lift.EPICv2.450 <- sesame::mLiftOver(sdf.EPICv2, "HM450", impute = FALSE)
+        
+        sdf.all <- c(sdf.450, sdf.lift.EPIC.450, sdf.lift.EPICv2.450)
+      } else if (ArrayType == "mouse") {
+        #read with sesame
+        sdf.mouse <-
+          sesame::openSesame(dataFiles$Basename, prep = "QCDPB", func = NULL)
+        
+        sdf.all <- sdf.mouse
+      } else {
+        #read with sesame
+        sdf.EPICv2 <-
+          sesame::openSesame(dataFiles$Basename, prep = "QCDPB", func = NULL)
+        
+        sdf.all <- sdf.EPICv2
+      }
+
+      target_rgset <- list("array_type" = ArrayType, "sdfs" = sdf.all)
+    } 
     
     return(target_rgset)
 }
