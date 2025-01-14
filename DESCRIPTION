@@ -19,6 +19,8 @@ biocViews:
     Processing
 Imports: 
     ggplot2,
+    sesame,
+    sesameData,
     GenVisR,
     minfi,
     minfiData,
