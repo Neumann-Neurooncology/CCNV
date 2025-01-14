@@ -12,7 +12,7 @@ install.packages("devtools")
 ```
 You can then either directly install the package from the GitHub directly using the following code snippet:
 ```
-devtools::install_github("AntoniaGocke/CCNV")
+devtools::install_github("Neumann-Neurooncology/CCNV")
 ```
 Or you can download the repository, navigate to the folder within R and run the installation via the following line of code:
 ```
