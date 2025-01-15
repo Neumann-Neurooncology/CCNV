@@ -68,7 +68,47 @@ CCNV <- function(mSetsAnno, seg_mpcf, target_ratios, ArrayType, colour.amplifica
     
     if (annotate == TRUE) {
       
-      print("Annotation function is not yet accessible for mouse data")
+      gene_list <- as.data.frame(mSetsAnno$anno_targets@bins@elementMetadata@listData[["genes"]])
+      gene_list$chr <- rownames(gene_list)
+      colnames(gene_list) <- c("genes","chr")
+      
+      positions <- as.data.frame(cbind(mSetsAnno$anno_targets@bins@ranges@NAMES, mSetsAnno$anno_targets@bins@ranges@start))
+      colnames(positions) <- c( "chr", "pos")
+      
+      gene_regions <- as.data.frame(dplyr::left_join(gene_list, positions, by = dplyr::join_by("chr")))
+      
+      gene_regions$genes <- gsub(";"," ",gene_regions$genes)
+      gene_regions$chr <- sub("\\-[^.]*$", "", gene_regions$chr)
+      gene_regions$chr <- gsub("chr", "", gene_regions$chr)
+      df_gene_regions <- gene_regions[!(gene_regions$chr=="X" | gene_regions$chr=="Y"),]
+      df_gene_regions$chr <- as.numeric(df_gene_regions$chr)
+      df_gene_regions$pos <- as.numeric(df_gene_regions$pos)
+      
+      #calculate position on genome
+      cpg_pos = c()
+      counter3 <- 1:length(df_gene_regions$chr)
+      for(i in counter3){
+        cpg_pos[i] <- df_gene_regions$pos[i] + addChr[df_gene_regions$chr[i]]
+      }
+      df_gene_regions$pos <- as.numeric(cpg_pos)
+      genes <- as.data.frame(detail.regions)
+      
+      final_bin_data <-  na.omit(final_bin_data)
+      df_gene_regions$bin <- final_bin_data$bin_nr[findInterval(df_gene_regions$pos, final_bin_data$V1)]
+      df_gene_regions <- as.data.frame(na.omit(as.matrix(df_gene_regions)))
+      df_gene_regions <- tidyr::separate(df_gene_regions, genes, into = c("genes1", "genes2"), sep = " (?=[^ ]+$)")
+      
+      #put together the genes and the corresponding bin data
+      geneBins <- as.data.frame(dplyr::left_join(genes, df_gene_regions, by = dplyr::join_by("detail.regions" == "genes1")))
+      
+      #remove duplicates and only keep the bin with the highest number of CpG sites present
+      geneBins <- geneBins %>% dplyr::group_by(geneBins$bins) %>% dplyr::count(geneBins$detail.regions, geneBins$bin)
+      colnames(geneBins) <- c("genes", "bins", "n")
+      geneBins <- geneBins[order(geneBins$n, decreasing  = TRUE),]
+      geneBins <- geneBins[!(duplicated(geneBins$genes)),]
+      
+      geneBins <- dplyr::left_join(geneBins, final_bin_data, by= dplyr::join_by("bins" == "bin_nr"))
+      geneBins <- geneBins[!((abs(geneBins$V2)) <0.15),]
       
       cumCNV <- ggplot2::ggplot() +
         ggplot2::geom_point(final_bin_data, mapping = aes(x=V1, y=V2, colour=V2))+ 
@@ -150,32 +190,19 @@ CCNV <- function(mSetsAnno, seg_mpcf, target_ratios, ArrayType, colour.amplifica
     
     
     if (annotate == TRUE) {
-      if (ArrayType != "450k"){
-        anno <- getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
-      }
-      if (ArrayType == "EPIC"){
-        anno <- getAnnotation(IlluminaHumanMethylationEPICanno.ilm10b4.hg19)
-      }
-      if (ArrayType == "EPICv2"){
-        print("Annotation function is not yet accessible for EPICv2 Arrays")
-        cumCNV <- ggplot2::ggplot() +
-          ggplot2::geom_point(final_bin_data, mapping = aes(x=V1, y=V2, colour=V2))+ 
-          ggplot2::ylim(-2.5, 2.5) + 
-          ggplot2::scale_color_gradient2(low = colour.loss ,  mid = "white",  high = colour.amplification,  midpoint = 0, breaks = b, guide = "colourbar" , space = "Lab", name = "Intensity") + 
-          ggplot2::geom_vline(xintercept = genome_chr, colour = "grey") + 
-          ggplot2::geom_vline(xintercept = genome_centr,linetype="dotted", colour = "grey")  + 
-          ggplot2::geom_path(data = final_seg_data, aes(x = V1, y = V2)) + 
-          ggplot2::labs(y = "Intensity") +
-          ggplot2::scale_x_continuous(limits = c(10001, 2881033286), name = "Chromosome", breaks = axis_break, labels = axis_label ) +
-          ggplot2::theme_classic(base_size = 15) + 
-          ggplot2::coord_cartesian(xlim = c(50001, 2881033286), expand = FALSE) + 
-          ggplot2::guides(x = guide_axis(n.dodge = 2))
-      }
       
       #detail data -> here used to be anno _EPIC
-      gene_regions <- as.data.frame(cbind(anno@listData$UCSC_RefGene_Name, anno@rownames, anno@listData$chr, anno@listData$pos))
-      colnames(gene_regions) <- c("genes", "CpG_sites", "chr", "pos")
+      gene_list <- as.data.frame(mSetsAnno$anno_targets@bins@elementMetadata@listData[["genes"]])
+      gene_list$chr <- rownames(gene_list)
+      colnames(gene_list) <- c("genes","chr")
+      
+      positions <- as.data.frame(cbind(mSetsAnno$anno_targets@bins@ranges@NAMES, mSetsAnno$anno_targets@bins@ranges@start))
+      colnames(positions) <- c( "chr", "pos")
+      
+      gene_regions <- as.data.frame(dplyr::left_join(gene_list, positions, by = dplyr::join_by("chr")))
+      
       gene_regions$genes <- gsub(";"," ",gene_regions$genes)
+      gene_regions$chr <- sub("\\-[^.]*$", "", gene_regions$chr)
       gene_regions$chr <- gsub("chr", "", gene_regions$chr)
       df_gene_regions <- gene_regions[!(gene_regions$chr=="X" | gene_regions$chr=="Y"),]
       df_gene_regions$chr <- as.numeric(df_gene_regions$chr)
@@ -202,7 +229,7 @@ CCNV <- function(mSetsAnno, seg_mpcf, target_ratios, ArrayType, colour.amplifica
       geneBins <- geneBins %>% dplyr::group_by(geneBins$bins) %>% dplyr::count(geneBins$detail.regions, geneBins$bin)
       colnames(geneBins) <- c("genes", "bins", "n")
       geneBins <- geneBins[order(geneBins$n, decreasing  = TRUE),]
-      geneBins <- na.omit(geneBins[-which(duplicated(geneBins$genes)),])
+      geneBins <- geneBins[!(duplicated(geneBins$genes)),]
       
       geneBins <- dplyr::left_join(geneBins, final_bin_data, by= dplyr::join_by("bins" == "bin_nr"))
       geneBins <- geneBins[!((abs(geneBins$V2)) <0.15),]
