@@ -52,16 +52,16 @@ singleSampleSeg<- function(mSetsAnno, thresh, colour.amplification, colour.loss,
   
   #redefine segmean as gain (1), loss (-1), or neutral (0) in new segmentationdata dataframe
   segmentation_data2$segmean_OLD <- segmentation_data2$segmean
-  #foreach::foreach(j = 1:nrow(segmentation_data2)) %do% {
-  #  if (segmentation_data2$segmean_OLD[j] > (segmentation_data2$noise[j] * CNV_dynamic_cutoff)) {
-  #    segmentation_data2$segmean[j] <- 1
-  #  } else if (segmentation_data2$segmean_OLD[j] < -(segmentation_data2$noise[j] * CNV_dynamic_cutoff)) {
-  #    segmentation_data2$segmean[j] <- -1
-  #  } else {
-  #    segmentation_data2$segmean[j] <- 0
-  #  }
+  foreach::foreach(j = 1:nrow(segmentation_data2)) %do% {
+    if (segmentation_data2$segmean_OLD[j] > (segmentation_data2$noise[j] * CNV_dynamic_cutoff)) {
+      segmentation_data2$segmean[j] <- 1
+    } else if (segmentation_data2$segmean_OLD[j] < -(segmentation_data2$noise[j] * CNV_dynamic_cutoff)) {
+      segmentation_data2$segmean[j] <- -1
+    } else {
+      segmentation_data2$segmean[j] <- 0
+    }
      
- # }
+  }
   
   singleFreqPlot <- singleFrequencyPlot(mSetsAnno, segmentation_data2, colour.amplification, colour.loss, thresh, array_type)
   
