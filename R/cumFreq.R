@@ -10,22 +10,23 @@
 #'
 cumFreq <- function(mSetsAnno, seg_mpcf, target_ratios, colour.amplification, colour.loss, thresh, array_type){
   if (array_type == "mouse") {
-    #Genome Data
     chr_name <- mSetsAnno$anno_targets@genome$chr
     chr_size <- mSetsAnno$anno_targets@genome$size
     genome_chr <- cumsum(as.numeric(chr_size))
+    chr_centr <- chr_size/ 2
     
     #just for getting pq - lines
     addChr <- c(0,genome_chr)
     addChr <- addChr[-length(addChr)]
+    genome_centr <- chr_centr + addChr
     
     #defining threshholds
-    broad_min_probes <- 300
-    focal_min_probes <- 2
+    min_probes <- 2
     
     #x-axis
-    axis_break <- genome_chr
-    axis_label <- c(1:length(genome_chr))
+    axis_break <- genome_centr
+    axis_label <- c(1:length(axis_break))
+    
     b <- c(-1, -0.5, 0, 0.5, 1)
     
     #segment

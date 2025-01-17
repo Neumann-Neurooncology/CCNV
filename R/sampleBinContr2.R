@@ -26,27 +26,26 @@ sampleBinContr2 <- function(target_rgset, ArrayType, controls) {
   } else if (ArrayType == "overlap.3") {
     anno_targets <- conumee2::CNV.create_anno(array_type = c("450k", "EPIC", "EPICv2"))
     target_mset_loaded <- conumee2::CNV.load(do.call(cbind, lapply(target_rgset$sdfs, totalIntensities)))
-  }
-    else {
+  } else {
       anno_targets <- conumee2::CNV.create_anno(array_type = ArrayType)
       # Illumina normalisation
       target_mset <- minfi::preprocessIllumina(target_rgset)
       target_mset_loaded <- conumee2::CNV.load(target_mset) 
     }
-  
   if (is.null(controls))  {
     #load controls based on ArrayType
     if (ArrayType == "overlap.1" || ArrayType == "450k" || ArrayType == "overlap.3") {
       control_mset <- minfiData::MsetEx
+      control_mset_loaded <- conumee2::CNV.load(control_mset)
     }
     if (ArrayType == "EPIC" || ArrayType == "overlap.2") {
       control_mset <- minfiDataEPIC::MsetEPIC
+      control_mset_loaded <- conumee2::CNV.load(control_mset)
     }
   } else {
-    control_mset <- controls
+    control_mset_loaded <- controls
   }
   
-  control_mset_loaded <- conumee2::CNV.load(control_mset)
   
   output <-
     list(

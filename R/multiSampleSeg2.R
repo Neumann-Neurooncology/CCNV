@@ -12,6 +12,7 @@ multiSampleSeg2 <- function(mSetsAnno, thresh, array_type, colour.amplification,
   
   #load and bin each sample in conumee
   x <- conumee2::CNV.bin(conumee2::CNV.fit(query = mSetsAnno$target_mset_loaded, ref = mSetsAnno$control_mset_loaded, mSetsAnno$anno_targets))
+  
   target_ratios <- cbind(x@anno@bins@ranges@NAMES, x@anno@bins@ranges@start, as.data.frame(x@bin$ratio))
   names(target_ratios) <- c("Chrom", "Median.bp", names(mSetsAnno$target_mset_loaded@intensity))
   

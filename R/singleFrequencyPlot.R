@@ -37,9 +37,10 @@ singleFrequencyPlot <- function(mSetsAnno, segmentation_data, colour.amplificati
     cnFreq_seg$data.end <- as.numeric(data.end)
     cnFreq_seg$data.lossProportion <- cnFreq_seg$data.lossProportion*-1
     
+  
     #duplicate rows/segment with gains and loss
     df.expanded <- cnFreq_seg[rep(row.names(cnFreq_seg), ifelse(cnFreq_seg$data.gainProportion != 0 & cnFreq_seg$data.lossProportion != 0 ,2 ,1)),]
-    
+
     #now every row is one rectangle of the final plot, extra rows have .1 in their name
     df.expanded$new_rownames <- rownames(df.expanded)
     
@@ -50,11 +51,12 @@ singleFrequencyPlot <- function(mSetsAnno, segmentation_data, colour.amplificati
     
     #decribe segment properties
     df.expanded$type <- ifelse(df.expanded$data.gainProportion == 0 & df.expanded$data.lossProportion == 0, "neutral", ifelse(df.expanded$Y_MAX == 0, "loss", "gain"))
+
     
     #separate into two dataframes for filtering
     gains <- df.expanded[which(df.expanded$type == "gain"),]
     loss <- df.expanded[which(df.expanded$type == "loss"),]
-    
+
     gains_filtered_for_plot <- as.data.frame(cbind(gains$data.start, gains$data.end, gains$data.gainProportion, gains$type))
     loss_filtered_for_plot <- as.data.frame(cbind(loss$data.start, loss$data.end, loss$data.lossProportion, loss$type))
     
@@ -67,15 +69,19 @@ singleFrequencyPlot <- function(mSetsAnno, segmentation_data, colour.amplificati
     y_axis_break <-c(-1,-0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1)
     y_axis_label <- c("100","75", "50","25", "0","25", "50","75", "100" )
     
-    to_plot$start <- as.numeric(to_plot$start)
-    to_plot$end <- as.numeric(to_plot$end)
-    for(i in 1:length(to_plot$end)){
-      if ((to_plot$end[i] - to_plot$start[i]) <5000000) {
-        to_plot$end[i] <- to_plot$start[i] + 5000000
+    if (length(to_plot$start) != 0) {
+      to_plot$start <- as.numeric(to_plot$start)
+      to_plot$end <- as.numeric(to_plot$end)
+      
+      for(i in 1:length(to_plot$end)){
+        if ((to_plot$end[i] - to_plot$start[i]) < 5000000) {
+          to_plot$end[i] <- to_plot$start[i] + 5000000
+        }
       }
+      
+      to_plot$count <- as.numeric(to_plot$count)
     }
     
-    to_plot$count <- as.numeric(to_plot$count)
     
     singleFreqPlot <- ggplot2::ggplot() + geom_rect(data = to_plot,  aes(xmin = start, xmax = end, ymax = count, ymin = 0 , fill = type))  +
       ggplot2::geom_vline(xintercept = genome_chr, colour = "grey") + 

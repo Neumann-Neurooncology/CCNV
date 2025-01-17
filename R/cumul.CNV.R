@@ -6,7 +6,7 @@
 
 get.ArrayType <- function(dataFiles) {
     ArrayType <- NULL
-    types = unique(dataFiles$ArrayType)
+    types <- unique(dataFiles$ArrayType)
     if ((all(c("EPIC", "450k") %in% types)) &
         (length(types) == 2)) {
         ArrayType <- "overlap.1"
@@ -47,7 +47,7 @@ get.ConumeeVersion <- function(ArrayType) {
 #'
 #' @return A list of the RGSet of the target data, the control data and the annotation data
 read.RGSet <- function(dataFiles, ArrayType) {
-    types = unique(dataFiles$ArrayType)
+    types <- unique(dataFiles$ArrayType)
     
     #read data transform to RGChannelSet
     if (ArrayType == "450k") {
@@ -91,7 +91,6 @@ read.RGSet <- function(dataFiles, ArrayType) {
         }
         
        #liftOver to smaller platform
-        
         sdf.lift.EPIC.450 <- sesame::mLiftOver(sdf.EPIC, "HM450", impute = FALSE)
         
         sdf.all <- c(sdf.450, sdf.lift.EPIC.450)
@@ -162,7 +161,8 @@ read.RGSet <- function(dataFiles, ArrayType) {
         sdf.lift.EPICv2.450 <- sesame::mLiftOver(sdf.EPICv2, "HM450", impute = FALSE)
         
         sdf.all <- c(sdf.450, sdf.lift.EPIC.450, sdf.lift.EPICv2.450)
-      } else if (ArrayType == "mouse") {
+      } 
+      else if (ArrayType == "mouse") {
         #read with sesame
         sdf.mouse <-
           sesame::openSesame(dataFiles$Basename, prep = "QCDPB", func = NULL)
@@ -386,9 +386,9 @@ cumul.CNV <-
         
         if(!is.null(controls)) {
           controlsRG <- read.RGSet(controls, array_type)
-          if (array_type %in% c("EPICv2", "mouse")) {
+          if (array_type %in% c("EPICv2", "mouse", "overlap.1", "overlap.2", "overlap.3")) {
             require(conumee2)
-            control_mset <- conumee2::CNV.import(controlsRG$array_type, controlsRG$directory, controlsRG$sample_sheet)
+            control_mset <- conumee2::CNV.load(do.call(cbind, lapply(controlsRG$sdfs, totalIntensities)))
           }
           else {
             control_mset <- minfi::preprocessIllumina(controlsRG)
