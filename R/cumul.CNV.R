@@ -43,8 +43,7 @@ read.RGSet <- function(dataFiles, ArrayType) {
         "Only 450k, EPIC, EPICv2, mouse and combined are permitted as ArrayType at the moment" =
             (ArrayType %in% c("450k", "EPIC", "combined", "EPICv2", "mouse"))
     )
-    types = unique(dataFiles$ArrayType)
-    
+
     #read data transform to RGChannelSet
     if (ArrayType == "combined") {
         # separate file names
@@ -70,7 +69,7 @@ read.RGSet <- function(dataFiles, ArrayType) {
         rgset_EPIC <-
             minfi::read.metharray.exp(targets = dataFiles, force = TRUE)
         target_rgset <- rgset_EPIC
-        
+
     }
     if (ArrayType %in% c("EPICv2", "mouse")) {
       targetDirectory <- dirname(dataFiles$Basename[1])
@@ -83,9 +82,9 @@ read.RGSet <- function(dataFiles, ArrayType) {
         sample_sheet$Sentrix_Position[i] <- Sentrix_parts[2]
       }
       target_rgset <- list("array_type" = ArrayType, "directory" = targetDirectory, "sample_sheet" = sample_sheet)
-      
+
     }
-    
+
     return(target_rgset)
 }
 
@@ -118,7 +117,7 @@ segment.Plot <-
         require(conumee)
         mSetsAnno <-  sampleBinContr(target_rgset, array_type, controls)
       } else {
-        require(conumee2.0)
+        require(conumee2)
         mSetsAnno <-  sampleBinContr2(target_rgset, array_type, controls)
       }
       require(ggplot2)
@@ -148,7 +147,7 @@ segment.Plot <-
                            colour.loss,
                            detail.regions,
                            showPlot,
-                            gamma)
+                           gamma)
           } else{
             multiSeg <- multiSampleSeg2(mSetsAnno,
                             thresh,
@@ -162,14 +161,12 @@ segment.Plot <-
           return(multiSeg)
         } else if (segmentationMode == "all") {
             if (conumee.version == 1) {
-              
               singleSeg <- singleSampleSeg(mSetsAnno,
                                 thresh,
                                 colour.amplification,
                                 colour.loss,
                                 array_type,
                                 showPlot)
-              
               multiSeg <- multiSampleSeg(mSetsAnno,
                              thresh,
                              array_type,
@@ -177,17 +174,14 @@ segment.Plot <-
                              colour.loss,
                              detail.regions,
                              showPlot,
-                            gamma)
-              
+                             gamma)
             } else{
-              
               singleSeg <- singleSampleSeg2(mSetsAnno,
                                  thresh,
                                  colour.amplification,
                                  colour.loss,
                                  array_type,
                                  showPlot)
-              
               multiSeg <- multiSampleSeg2(mSetsAnno,
                              thresh,
                              array_type,
@@ -195,10 +189,9 @@ segment.Plot <-
                              colour.loss,
                              detail.regions,
                              showPlot,
-                            gamma)
-              
+                             gamma)
             }
-          
+
             output <-
               list(
                 "multiSeg" = multiSeg,
@@ -271,7 +264,7 @@ cumul.CNV <-
         stopifnot(
           "Parameter output must either be plot, data or all" = (output %in% c("plot", "data", "all"))
         )
-        
+
         # determine type of input files
         array_type <- get.ArrayType(dataFiles)
         # determine the conumee version (if not specified by the user)
@@ -284,28 +277,28 @@ cumul.CNV <-
         } else {
           segVal = TRUE
         }
-        
+
         if (output == "data") {
         showPlot = "FALSE"
         } else {
           showPlot = "TRUE"
         }
-        
+
         if(!is.null(controls)) {
           controlsRG <- read.RGSet(controls, array_type)
           if (array_type %in% c("EPICv2", "mouse")) {
-            require(conumee2.0)
-            control_mset <- conumee2.0::CNV.import(controlsRG$array_type, controlsRG$directory, controlsRG$sample_sheet)
+            require(conumee2)
+            control_mset <- conumee2::CNV.import(controlsRG$array_type, controlsRG$directory, controlsRG$sample_sheet)
           }
           else {
             control_mset <- minfi::preprocessIllumina(controlsRG)
           }
           controls <- control_mset
         }
-        
+
         # read in RGSet
         target_rgset <- read.RGSet(dataFiles, array_type)
-        
+
         # segment and plot
         SegementationValues <- segment.Plot(
             target_rgset,
@@ -324,5 +317,5 @@ cumul.CNV <-
         } else {
           return(NULL)
         }
-        
+
     }

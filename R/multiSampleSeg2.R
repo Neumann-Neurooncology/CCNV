@@ -10,8 +10,9 @@
 #' @return Nothing. Will print the figures to the default plotting terminal.
 multiSampleSeg2 <- function(mSetsAnno, thresh, array_type, colour.amplification, colour.loss, detail.regions, showPlot, gamma){
 
+  print(gamma)
   #load and bin each sample in conumee
-  x <- conumee2.0::CNV.bin(conumee2.0::CNV.fit(query = mSetsAnno$target_mset_loaded, ref = mSetsAnno$control_mset_loaded, mSetsAnno$anno_targets))
+  x <- conumee2::CNV.bin(conumee2::CNV.fit(query = mSetsAnno$target_mset_loaded, ref = mSetsAnno$control_mset_loaded, mSetsAnno$anno_targets))
 
   genes <- mSetsAnno$anno_targets@probes@elementMetadata@listData[["genes"]]
   genes <- na.omit(genes)
@@ -57,11 +58,11 @@ multiSampleSeg2 <- function(mSetsAnno, thresh, array_type, colour.amplification,
   target_ratios <- na.omit(as.data.frame(sapply(target_ratios, as.numeric)))
 
   #################### Segmentation #################################
-  start <- Sys.time()
+  #start <- Sys.time()
   seg_mpcf <- FastMultiPCF(target_ratios, gamma = gamma)
-  end <- Sys.time()
-  execution_time_multi <- as.numeric(as.POSIXct(start,origin = "1970-01-01")) - as.numeric(as.POSIXct(end,origin = "1970-01-01"))
-  print(paste("Runtime multi:", execution_time_multi))
+  #end <- Sys.time()
+  #execution_time_multi <- as.numeric(as.POSIXct(start,origin = "1970-01-01")) - as.numeric(as.POSIXct(end,origin = "1970-01-01"))
+  #print(paste("Runtime multi:", execution_time_multi))
 
   require(dplyr)
   cumCNV <- CCNV(mSetsAnno, seg_mpcf, target_ratios, array_type, colour.amplification, colour.loss, detail.regions, array_type)

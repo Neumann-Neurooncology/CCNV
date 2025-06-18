@@ -14,28 +14,28 @@ cumFreq <- function(mSetsAnno, seg_mpcf, target_ratios, colour.amplification, co
     chr_name <- mSetsAnno$anno_targets@genome$chr
     chr_size <- mSetsAnno$anno_targets@genome$size
     genome_chr <- cumsum(as.numeric(chr_size))
-    
+
     #just for getting pq - lines
     addChr <- c(0,genome_chr)
     addChr <- addChr[-length(addChr)]
-    
+
     #defining threshholds
     broad_min_probes <- 300
     focal_min_probes <- 2
-    
+
     #x-axis
     axis_break <- genome_chr
     axis_label <- c(1:length(genome_chr))
     b <- c(-1, -0.5, 0, 0.5, 1)
-    
+
     #segment
     segstart <- seg_mpcf$start.pos
     segend <- seg_mpcf$end.pos
     segnames <- as.numeric(seg_mpcf$chrom)
-    
+
     segment_data <- as.data.frame(cbind(segstart, segend, segnames))
     colnames(segment_data) <- c("seg_start", "seg_end" , "chr")
-    
+
     #calculate position on genome
     seg_start <- c()
     seg_end <- c()
@@ -44,28 +44,28 @@ cumFreq <- function(mSetsAnno, seg_mpcf, target_ratios, colour.amplification, co
         seg_start[i] <- segment_data$seg_start[i] + addChr[segment_data$chr[i]]
         seg_end[i] <- segment_data$seg_end[i] + addChr[segment_data$chr[i]]
       }
-    
+
     seg_data_samples <- seg_mpcf[,-(which(names(seg_mpcf) %in% c("chrom",  "start.pos", "end.pos", "n.probes")))]
     df_seg_val <- as.data.frame(cbind(seg_start, seg_end,  rowMeans(seg_data_samples)))
     candidates <-  as.data.frame(cbind(seg_start, seg_end, seg_mpcf$n.probes, seg_data_samples))
-    
-    
+
+
     for (i in 1:length(candidates$seg_end)) {
       if ((candidates$seg_end[i] - candidates$seg_start[i]) <5000000) {
         candidates$seg_end[i] <- candidates$seg_end[i] + 5000000
       }
     }
-    
+
     candidates$mean <- rowMeans(seg_data_samples)
     candidates <- candidates[!((abs(candidates$`seg_mpcf$n.probes`)) < min_probes),]
     candid_values <- candidates[,-(which(names(candidates) %in% c("seg_start", "seg_end", "seg_mpcf$n.probes", "mean")))]
     candidates$col <- "amplification"
     candidates$count <- 0
-    
+
     amplifications <- candidates[1,]
     deletions <- amplifications
     count <- c(1:length(candidates$seg_start))
-    
+
     for (i in count) {
       ampl <- max(0, (sum(candid_values[i,] >= thresh)) )
       del <- max(0, (sum(candid_values[i,] <= -thresh)) )
@@ -80,12 +80,12 @@ cumFreq <- function(mSetsAnno, seg_mpcf, target_ratios, colour.amplification, co
         candidates$col[i] <- "amplification"
         amplifications <- rbind(amplifications, candidates[i,])
       }
-      
+
     }
-    
+
     amplifications <- amplifications[-1,]
     deletions <- deletions[-1,]
-    
+
     if(is.null(amplifications) ) {
       candidates <- deletions
     } else if (is.null(deletions)) {
@@ -97,7 +97,7 @@ cumFreq <- function(mSetsAnno, seg_mpcf, target_ratios, colour.amplification, co
     b <- c(-1, -0.5, 0, 0.5, 1)
     y_axis_break <-c(-sample_no,-(sample_no/2) + -(sample_no/4), -(sample_no/2), -(sample_no/4),0, sample_no/4, sample_no/2,(sample_no/2) + (sample_no/4), sample_no)
     y_axis_label <- c("100","75", "50","25", "0","25", "50","75", "100" )
-    
+
     cumFreq <- ggplot2::ggplot() +
       ggplot2::geom_rect(data = candidates,  aes(xmin = seg_start, xmax = seg_end, ymax = count, ymin = 0 , fill = col))  +
       ggplot2::geom_vline(xintercept = genome_chr, colour = "grey") +
@@ -116,28 +116,28 @@ cumFreq <- function(mSetsAnno, seg_mpcf, target_ratios, colour.amplification, co
     chr_size <- mSetsAnno$anno_targets@genome$size
     genome_chr <- cumsum(as.numeric(chr_size))
     chr_centr <- mSetsAnno$anno_targets@genome$pq
-    
+
     #just for getting pq - lines
     addChr <- c(0,genome_chr)
     addChr <- addChr[-length(addChr)]
     genome_centr <- chr_centr + addChr
-    
+
     #defining threshholds
     min_probes <- 2
-    
+
     #x-axis
     axis_break <- genome_centr
     axis_label <- c(1:22)
     b <- c(-1, -0.5, 0, 0.5, 1)
-    
+
     #segment
     segstart <- seg_mpcf$start.pos
     segend <- seg_mpcf$end.pos
     segnames <- as.numeric(seg_mpcf$chrom)
-    
+
     segment_data <- as.data.frame(cbind(segstart, segend, segnames))
     colnames(segment_data) <- c("seg_start", "seg_end" , "chr")
-    
+
     #calculate position on genome
     seg_start <- c()
     seg_end <- c()
@@ -146,37 +146,37 @@ cumFreq <- function(mSetsAnno, seg_mpcf, target_ratios, colour.amplification, co
         seg_start[i] <- segment_data$seg_start[i] + addChr[segment_data$chr[i]]
         seg_end[i] <- segment_data$seg_end[i] + addChr[segment_data$chr[i]]
       }
-    
+
     seg_data_samples <- seg_mpcf[,-(which(names(seg_mpcf) %in% c("chrom", "start.pos", "end.pos", "n.probes")))]
-    
+
     df_seg_val <- as.data.frame(cbind(seg_start, seg_end,  rowMeans(seg_data_samples)))
-    
+
     candidates <-  as.data.frame(cbind(seg_start, seg_end, seg_mpcf$n.probes, seg_data_samples))
-    
-    
+
+
     for (i in 1:length(candidates$seg_end)) {
       if ((candidates$seg_end[i] - candidates$seg_start[i]) <5000000) {
         candidates$seg_end[i] <- candidates$seg_end[i] + 5000000
       }
     }
-    
+
     candidates$mean <- rowMeans(seg_data_samples)
     candidates <- candidates[!((abs(candidates$`seg_mpcf$n.probes`)) < min_probes),]
     candid_values <- candidates[,-(which(names(candidates) %in% c("seg_start", "seg_end", "seg_mpcf$n.probes", "mean")))]
     candidates$col <- "amplification"
     candidates$count <- 0
-    
+
     amplifications <- candidates[1,]
     deletions <- amplifications
     count <- c(1:length(candidates$seg_start))
-    
+
     for (i in count) {
       ampl <- max(0, (sum(candid_values[i,] >= thresh)) )
       del <- max(0, (sum(candid_values[i,] <= -thresh)) )
       if (0 < del)
       { candidates$count[i] <- -del
-      candidates$col[i] <- "deletion"
-      deletions <- rbind(deletions, candidates[i,])
+        candidates$col[i] <- "deletion"
+        deletions <- rbind(deletions, candidates[i,])
       }
       if (0 < ampl)
       {
@@ -184,27 +184,27 @@ cumFreq <- function(mSetsAnno, seg_mpcf, target_ratios, colour.amplification, co
         candidates$col[i] <- "amplification"
         amplifications <- rbind(amplifications, candidates[i,])
       }
-      
+
     }
-    
+
     amplifications <- amplifications[-1,]
     deletions <- deletions[-1,]
-    
+
     if(is.null(amplifications) ) {
       candidates <- deletions
     } else if (is.null(deletions)) {
       candidates <- amplifications
     } else {
-      candidates <- rbind(amplifications, deletions)
+    candidates <- rbind(amplifications, deletions)
     }
-    
-    
+
+
     sample_no <- ncol(seg_data_samples)
     b <- c(-1, -0.5, 0, 0.5, 1)
     y_axis_break <-c(-sample_no,-(sample_no/2) + -(sample_no/4), -(sample_no/2), -(sample_no/4),0, sample_no/4, sample_no/2,(sample_no/2) + (sample_no/4), sample_no)
     y_axis_label <- c("100","75", "50","25", "0","25", "50","75", "100" )
-    
-    
+
+
     cumFreq <- ggplot2::ggplot() +
       ggplot2::geom_rect(data = candidates,  aes(xmin = seg_start, xmax = seg_end, ymax = count, ymin = 0 , fill = col))  +
       ggplot2::geom_vline(xintercept = genome_chr, colour = "grey") +
