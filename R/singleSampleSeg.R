@@ -11,15 +11,55 @@ singleSampleSeg<- function(mSetsAnno, thresh, colour.amplification, colour.loss,
 
   #load bin and segment each sample in conumee
   #load bin and segment each sample in conumee
+  binInfo <- mSetsAnno[["anno_targets"]]@bins@ranges@NAMES
+  toChange <- sample(c(1:length(binInfo)),1)
+
+  allColsToChange <- integer()
+
+  for (colIndex in toChange) {
+    colRange <- (colIndex - 3):(colIndex + 3)
+    allColsToChange <- unique(c(allColsToChange, colRange))
+  }
+  fractions <- c(0.2, 0.4, 0.6, 0.8, 1)
+  frac <- sample(fractions, 1)
+
+  amplifications <- c(0.5, 1, 1.5, 2)
+  strength <- sample(amplifications, 1)
+
+
   foreach(i = 1:ncol(mSetsAnno$target_mset_loaded@intensity)) %do%
     {
       if(i==1) {
-        x <- conumee::CNV.segment(conumee::CNV.bin(conumee::CNV.fit( query = mSetsAnno$target_mset_loaded[names(mSetsAnno$target_mset_loaded[i])], ref = mSetsAnno$control_mset_loaded, mSetsAnno$anno_targets)))
-        segmentation_data <- as.data.frame(cbind(x@seg$summary$chrom, x@seg$summary$loc.start, x@seg$summary$loc.end, x@seg$summary$seg.mean, names(mSetsAnno$target_mset_loaded[i]), x@fit[["noise"]]))
+        if (i <= frac * ncol(mSetsAnno$target_mset_loaded@intensity)) {
+          x1 <- conumee::CNV.bin(conumee::CNV.fit( query = mSetsAnno$target_mset_loaded[names(mSetsAnno$target_mset_loaded[i])], ref = mSetsAnno$control_mset_loaded, mSetsAnno$anno_targets))
+
+          int <- x1@bin[["ratio"]]
+          int[allColsToChange] <- int[allColsToChange] + strength
+          x1@bin[["ratio"]][] <- int[]
+          x <- conumee::CNV.segment(x1)
+          segmentation_data <- as.data.frame(cbind(x@seg$summary$chrom, x@seg$summary$loc.start, x@seg$summary$loc.end, x@seg$summary$seg.mean, names(mSetsAnno$target_mset_loaded[i]), x@fit[["noise"]]))
+        } else {
+          x1 <- conumee::CNV.bin(conumee::CNV.fit( query = mSetsAnno$target_mset_loaded[names(mSetsAnno$target_mset_loaded[i])], ref = mSetsAnno$control_mset_loaded, mSetsAnno$anno_targets))
+          x <- conumee::CNV.segment(x1)
+          segmentation_data <- as.data.frame(cbind(x@seg$summary$chrom, x@seg$summary$loc.start, x@seg$summary$loc.end, x@seg$summary$seg.mean, names(mSetsAnno$target_mset_loaded[i]), x@fit[["noise"]]))
+        }
+
       }
       else {
-        x <- conumee::CNV.segment(conumee::CNV.bin(conumee::CNV.fit( query = mSetsAnno$target_mset_loaded[names(mSetsAnno$target_mset_loaded[i])], ref = mSetsAnno$control_mset_loaded, mSetsAnno$anno_targets)))
-        target_segmentation <- as.data.frame(cbind(x@seg$summary$chrom, x@seg$summary$loc.start, x@seg$summary$loc.end, x@seg$summary$seg.mean, names(mSetsAnno$target_mset_loaded[i]), x@fit[["noise"]]))
+        if (i <= frac * ncol(mSetsAnno$target_mset_loaded@intensity)) {
+          x1 <- conumee::CNV.bin(conumee::CNV.fit( query = mSetsAnno$target_mset_loaded[names(mSetsAnno$target_mset_loaded[i])], ref = mSetsAnno$control_mset_loaded, mSetsAnno$anno_targets))
+
+          int <- x1@bin[["ratio"]]
+          int[allColsToChange] <- int[allColsToChange] + strength
+          x1@bin[["ratio"]][] <- int[]
+          x <- conumee::CNV.segment(x1)
+
+          target_segmentation  <- as.data.frame(cbind(x@seg$summary$chrom, x@seg$summary$loc.start, x@seg$summary$loc.end, x@seg$summary$seg.mean, names(mSetsAnno$target_mset_loaded[i]), x@fit[["noise"]]))
+        } else {
+          x1 <- conumee::CNV.bin(conumee::CNV.fit( query = mSetsAnno$target_mset_loaded[names(mSetsAnno$target_mset_loaded[i])], ref = mSetsAnno$control_mset_loaded, mSetsAnno$anno_targets))
+          x <- conumee::CNV.segment(x1)
+          target_segmentation  <- as.data.frame(cbind(x@seg$summary$chrom, x@seg$summary$loc.start, x@seg$summary$loc.end, x@seg$summary$seg.mean, names(mSetsAnno$target_mset_loaded[i]), x@fit[["noise"]]))
+        }
         names(target_segmentation) <- names(segmentation_data)
         segmentation_data <- rbind(segmentation_data, target_segmentation)
       }
