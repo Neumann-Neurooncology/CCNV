@@ -92,7 +92,7 @@ singleSampleSeg2<- function(mSetsAnno, thresh, colour.amplification, colour.loss
   }
 
   else {
-    return(segmentation_data)
+    return(list(segmentation_data, gene, frac, strength))
   }
 
 
