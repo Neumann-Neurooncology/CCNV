@@ -101,5 +101,5 @@ singleSampleSeg<- function(mSetsAnno, thresh, colour.amplification, colour.loss,
     suppressWarnings(print(singleFreqPlot))
   }
 
-  return(list(overlayPlot, singleFreqPlot))
+  return(segmentation_data)
 }
