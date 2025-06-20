@@ -92,7 +92,7 @@ singleSampleSeg2<- function(mSetsAnno, thresh, colour.amplification, colour.loss
   }
 
   else {
-    return(list(overlayPlot,singleFreqPlot ))
+    return(segmentation_data)
   }
 
 
