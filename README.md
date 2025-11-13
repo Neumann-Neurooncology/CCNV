@@ -80,4 +80,4 @@ This package is published under the GPL-2.0 open-source license.
 ## **Reference**
 Please cite our manuscript, if you use CCNV for your research:
 
-*In Preparation*
+Gocke, A., Schumann, Y., Navolić, J. et al. CCNV: a user-friendly R package enabling large-scale cumulative copy number variation analyses of DNA methylation data. BMC Bioinformatics 26, 229 (2025). https://doi.org/10.1186/s12859-025-06269-z
