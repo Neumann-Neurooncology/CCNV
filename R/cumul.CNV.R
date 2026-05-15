@@ -107,7 +107,7 @@ read.RGSet <- function(dataFiles, ArrayType) {
           names(sdf.EPIC) <- samplename
         } else {
           sdf.EPIC <-
-            sesame::openSesame(sdf.EPIC$Basename, prep = "QCDPB", func = NULL)
+            sesame::openSesame(data_EPIC$Basename, prep = "QCDPB", func = NULL)
         }
         if (length(data_EPICv2$Basename) == 1) {
           samplename <- basename(data_EPICv2$Basename)
